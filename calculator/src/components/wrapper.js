@@ -1,4 +1,4 @@
-import './wrapper.css';
+import './Wrapper.css';
 
 const Wrapper = ({ children }) => {
     return <div className='wrapper'>{children}</div>;
