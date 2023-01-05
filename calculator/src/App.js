@@ -19,7 +19,7 @@ const App = () => {
   //  sign, the selected sign
   //  num, the entered value;
   //  res, the calculated value
-  let [calc, SetCalc] = useState({
+  let [calc, setCalc] = useState({
     sign: "",
     num: 0,
     res: 0,
@@ -33,81 +33,115 @@ const App = () => {
     const value = e.target.innerHTML;
 
     if (removeSpaces(calc.num).length < 16) {
-      SetCalc({
+      setCalc({
         ...calc,
         num:
-        calc.num === 0 && value === "0"
-        ? "0"
-        : removeSpaces(calc.num) % 1 === 0
-        ? toLocaleString(Number(removeSpaces(calc.num + value)))
-        : toLocaleString(calc.num + value),
+          calc.num === 0 && value === "0"
+            ? "0"
+            : removeSpaces(calc.num) % 1 === 0
+              ? toLocaleString(Number(removeSpaces(calc.num + value)))
+              : toLocaleString(calc.num + value),
         res: !calc.sign ? 0 : calc.res,
       });
     }
-  }
+  };
 
   // comma Click Handler
   const commaClickHandler = (e) => {
     e.preventDefault();
     const value = e.target.innerHTML;
 
-    SetCalc({
+    setCalc({
       ...calc,
       num: !calc.num.toString().includes(".") ? calc.num + value : calc.num,
     })
-  }
+  };
 
   //sign ClickHandler
   const signClickHandler = (e) => {
     e.preventDefault();
     const value = e.target.innerHTML;
 
-    SetCalc({
+    setCalc({
       ...calc,
       sign: value,
       num: !calc.res && calc.num ? calc.num : calc.res,
       res: 0,
     })
-  }
+  };
 
   //equals Click Handler
   const equalsClickHandler = (e) => {
-    e.preventDefault();
-    const value = e.target.innerHTML;
-
-
-  }
+    if (calc.sign && calc.num) {
+      const math = (a, b, sign) => {
+        return (sign === "+"
+          ? a + b
+          : sign === "-"
+            ? a - b
+            : sign === "X"
+              ? a * b
+              : a / b)
+      }
+  
+      setCalc({
+        ...calc,
+        res:
+          calc.num === "0" && calc.sign === "/"
+            ? "Can't divide by 0"
+            : math(Number(calc.res), Number(calc.num), calc.sign),
+        sign: "",
+        num: 0,
+      })
+    }
+  };
 
   //invert ClickHandler
   const invertClickHandler = (e) => {
-    e.preventDefault();
-    const value = e.target.innerHTML;
-
+    setCalc({
+      ...calc,
+      num: calc.num ? toLocaleString(removeSpaces(calc.num) * -1) : 0,
+      res: calc.res ? toLocaleString(removeSpaces(calc.res) * -1) : 0,
+      sign: "",
+    });
   }
   
+
 //percent ClickHandler
   const percentClickHandler = (e) => {
-    e.preventDefault();
-    const value = e.target.innerHTML;
+
+ let num = calc.num ? parseFloat(removeSpaces(calc.num)) : 0;
+    let res = calc.res ? parseFloat(removeSpaces(calc.res)) : 0;
+
+    setCalc({
+      ...calc,
+      num: (num /= Math.pow(100, 1)),
+      res: (res /= Math.pow(100, 1)),
+      sign: "",
+    });
 
   }
 
 //reset ClickHandler
   const resetClickHandler = (e) => {
-    e.preventDefault();
-    const value = e.target.innerHTML;
-
+    setCalc({
+      ...calc,
+      sign: "",
+      num: 0,
+      res: 0,
+    });
   }
   
-  
+  // Utility functions -------------------------------------------------------------
+  //
   // take a number, format it into the string format and create the space separators 
   // for the thousand mark
   const toLocaleString = (num) =>
   String(num).replace(/(?<!\..*)(\d)(?=(?:\d{3})+(?:\.|$))/g, "$1 ");
 
-  // process the string of numbers, first we need to remove the spaces
+  // process the string of numbers, first we  remove the spaces
   // so we can later convert it to number
   const removeSpaces = (num) => num.toString().replace(/\s/g, "");
+
 
 
   return (
