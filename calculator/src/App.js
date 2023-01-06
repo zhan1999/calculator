@@ -13,18 +13,31 @@ const btnValues = [
   ["0", ".", "="],
 ];
 
-const App = () => {
+  // Utility functions -------------------------------------------------------------
+  //
+  // take a number, format it into the string format and create the space separators 
+  // for the thousand mark
+  const toLocaleString = (num) =>
+  String(num).replace(/(?<!\..*)(\d)(?=(?:\d{3})+(?:\.|$))/g, "$1 ");
 
+  // process the string of numbers, first we  remove the spaces
+  // so we can later convert it to number
+const removeSpaces = (num) => num.toString().replace(/\s/g, "");
+
+const math = (a, b, sign) =>
+        sign === "+" ? a + b : sign === "-" ? a - b : sign === "X" ? a * b  : a / b;
+
+
+const App = () => {
   //  three states:
-  //  sign, the selected sign
-  //  num, the entered value;
-  //  res, the calculated value
+  //  sign = the selected sign
+  //  num = the entered value;
+  //  res = the calculated value
   let [calc, setCalc] = useState({
     sign: "",
     num: 0,
     res: 0,
-  }
-  );
+  });
 
 
   // num Click Handler
@@ -36,15 +49,15 @@ const App = () => {
       setCalc({
         ...calc,
         num:
-          calc.num === 0 && value === "0"
-            ? "0"
-            : removeSpaces(calc.num) % 1 === 0
+              removeSpaces(calc.num) % 1 === 0 && !calc.num.toString().includes(".")
               ? toLocaleString(Number(removeSpaces(calc.num + value)))
               : toLocaleString(calc.num + value),
         res: !calc.sign ? 0 : calc.res,
       });
     }
+    console.log(calc.num, calc.res, calc.sign);
   };
+
 
   // comma Click Handler
   const commaClickHandler = (e) => {
@@ -59,29 +72,28 @@ const App = () => {
 
   //sign ClickHandler
   const signClickHandler = (e) => {
-    e.preventDefault();
+    // e.preventDefault();
     const value = e.target.innerHTML;
 
     setCalc({
       ...calc,
       sign: value,
-      num: !calc.res && calc.num ? calc.num : calc.res,
-      res: 0,
+      num: 0,
+      res: !calc.num ?
+        calc.res :
+        !calc.res ?
+          calc.num :
+          toLocaleString(
+            math(
+              Number(removeSpaces(calc.res)),
+              Number(removeSpaces(calc.num)),
+              calc.sign))
     })
   };
 
   //equals Click Handler
-  const equalsClickHandler = (e) => {
+  const equalsClickHandler = () => {
     if (calc.sign && calc.num) {
-      const math = (a, b, sign) =>
-        sign === "+"
-          ? a + b
-          : sign === "-"
-            ? a - b
-            : sign === "X"
-              ? a * b
-              : a / b;
-        
       setCalc({
         ...calc,
         res:
@@ -98,10 +110,11 @@ const App = () => {
         num: 0,
       })
     }
+    console.log(calc.num, calc.res, calc.sign);
   };
 
   //invert ClickHandler
-  const invertClickHandler = (e) => {
+  const invertClickHandler = () => {
     setCalc({
       ...calc,
       num: calc.num ? toLocaleString(removeSpaces(calc.num) * -1) : 0,
@@ -112,9 +125,9 @@ const App = () => {
   
 
 //percent ClickHandler
-  const percentClickHandler = (e) => {
+  const percentClickHandler = () => {
 
- let num = calc.num ? parseFloat(removeSpaces(calc.num)) : 0;
+    let num = calc.num ? parseFloat(removeSpaces(calc.num)) : 0;
     let res = calc.res ? parseFloat(removeSpaces(calc.res)) : 0;
 
     setCalc({
@@ -127,7 +140,7 @@ const App = () => {
   }
 
 //reset ClickHandler
-  const resetClickHandler = (e) => {
+  const resetClickHandler = () => {
     setCalc({
       ...calc,
       sign: "",
@@ -136,19 +149,6 @@ const App = () => {
     });
   }
   
-  // Utility functions -------------------------------------------------------------
-  //
-  // take a number, format it into the string format and create the space separators 
-  // for the thousand mark
-  const toLocaleString = (num) =>
-  String(num).replace(/(?<!\..*)(\d)(?=(?:\d{3})+(?:\.|$))/g, "$1 ");
-
-  // process the string of numbers, first we  remove the spaces
-  // so we can later convert it to number
-  const removeSpaces = (num) => num.toString().replace(/\s/g, "");
-
-
-
   return (
     <Wrapper>
       <Screen value={calc.num ? calc.num : calc.res} />
@@ -180,7 +180,6 @@ const App = () => {
             );
           })
         }
-        
       </ButtonBox>
     </Wrapper>
   );
