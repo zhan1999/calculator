@@ -136,7 +136,6 @@ const App = () => {
       res: (res /= Math.pow(100, 1)),
       sign: "",
     });
-
   }
 
 //reset ClickHandler
